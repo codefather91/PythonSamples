@@ -1,0 +1,22 @@
+import tkinter as tk
+
+root = tk.Tk()
+root.geometry('640x480')
+root.title("BlackJack!! v2")
+
+dealerFrame = tk.Frame(root,highlightbackground="green", highlightcolor="green", highlightthickness=1, width=620, height=140, bd= 0)
+dealerFrame.pack(padx=10, pady=10, fill=BOTH)
+
+playerFrame = tk.Frame(root,highlightbackground="black", highlightcolor="black", highlightthickness=1, width=620, height=140, bd= 0)
+playerFrame.pack(padx=10, pady=10, fill=BOTH)
+
+controlFrame = tk.Frame(root,highlightbackground="red", highlightcolor="red", highlightthickness=1, width=620, height=140, bd= 0)
+controlFrame.pack(padx=10, pady=10, fill=BOTH)
+
+dealerText = tk.Label(dealerFrame, text="DEALER")
+dealerText.grid(row=0, column=0)
+
+playerText = tk.Label(playerFrame, text="PLAYER")
+playerText.grid(row=0, column=0)
+
+root.mainloop()
