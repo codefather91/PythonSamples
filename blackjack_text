@@ -99,7 +99,7 @@ def blackjack():
 
 def player_bust():
     global bust_flag
-    bust = 1
+    bust_flag = 1
     print("PLAYER BUST!")
     play_again()
 
