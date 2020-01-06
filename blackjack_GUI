@@ -35,20 +35,26 @@ dealer_deck=[]
 dealer_score=0
 bust_flag=0
 player_name=''
-
+chance=0
+play_card=''
 # Define the gameplay logic
 
 def play_again():
     # Function to re-run the game if user wants to play again else close the app
-    hitButton["state"] = 'disabled'
-    standButton["state"] = 'disabled'
-    playagain = mb.askquestion("Play Again?", "Would you like to play again?")
-    if playagain == 'yes':
-        hitButton["state"] = 'active'
-        standButton["state"] = 'active'
-        initialize_game()
+    global chance
+    global play_card
+    if chance > 0 and chance < 2:
+        double_down()
     else:
-        root.destroy()
+        hitButton["state"] = 'disabled'
+        standButton["state"] = 'disabled'
+        playagain = mb.askquestion("Play Again?", "Would you like to play again?")
+        if playagain == 'yes':
+            hitButton["state"] = 'active'
+            standButton["state"] = 'active'
+            initialize_game()
+        else:
+            root.destroy()
 
 def initialize_game():
     # Set up the game for new play. Deal the first two cards to the player and one card to the dealer.
@@ -58,11 +64,14 @@ def initialize_game():
     global dealer_score
     global bust_flag
     global card_deck
+    global chance
+    global play_card
     player_deck=[]
     dealer_deck=[]
     player_score=0
     dealer_score=0
     bust_flag=0
+    chance=0
     dealer_card = random.choice(list(card_deck))
     dealer_deck.append(dealer_card)
     if dealer_card == 'A':
@@ -71,31 +80,71 @@ def initialize_game():
         dealer_val = card_deck[dealer_card]
     dealer_score+=dealer_val
     play_card1 = random.choice(list(card_deck))
-    player_deck.append(play_card1)
-    if play_card1 == 'A':
-        if player_score + 11 <= 21:
-            play_cardval1 = 11
-        else:
-            play_cardval1 = 1
-    else:
-        play_cardval1 = card_deck[play_card1]
-    player_score+=play_cardval1
     play_card2 = random.choice(list(card_deck))
-    player_deck.append(play_card2)
-    if play_card2 == 'A':
-        if player_score + 11 <= 21:
-            play_cardval2 = 11
+    if play_card1 == play_card2:
+        split_ask = mb.askquestion("Split", "You drew two consecutive "+play_card1+"\nWould you like to split?")
+        if split_ask == 'yes':
+            play_card = play_card1
+            double_down()
         else:
-            play_cardval2 = 1
+            player_deck.append(play_card1)
+            if play_card1 == 'A':
+                if player_score + 11 <= 21:
+                    play_cardval1 = 11
+                else:
+                    play_cardval1 = 1
+            else:
+                play_cardval1 = card_deck[play_card1]
+            player_score+=play_cardval1
+            player_deck.append(play_card2)
+            if play_card2 == 'A':
+                if player_score + 11 <= 21:
+                    play_cardval2 = 11
+                else:
+                    play_cardval2 = 1
+            else:
+                play_cardval2 = card_deck[play_card2]
+                player_score += play_cardval2
     else:
-        play_cardval2 = card_deck[play_card2]
-    player_score += play_cardval2
+        player_deck.append(play_card1)
+        if play_card1 == 'A':
+            if player_score + 11 <= 21:
+                play_cardval1 = 11
+            else:
+                play_cardval1 = 1
+        else:
+            play_cardval1 = card_deck[play_card1]
+        player_score+=play_cardval1
+        player_deck.append(play_card2)
+        if play_card2 == 'A':
+            if player_score + 11 <= 21:
+                play_cardval2 = 11
+            else:
+                play_cardval2 = 1
+        else:
+            play_cardval2 = card_deck[play_card2]
+        player_score += play_cardval2
 #    print("DEALER DECK :", " ".join(dealer_deck))
 #    print("DEALER SCORE :", dealer_score)
     dealercards.config(text=" ".join(dealer_deck))
     score_show()
     score_check()
 #    player_turn()
+
+def double_down():
+    global player_deck
+    global play_card
+    global player_score
+    global chance
+    global card_deck
+    player_deck=[]
+    player_score=0
+    mb.showinfo(title="Double Down", message="Deck #"+str(chance+1))
+    player_deck.append(play_card)
+    player_score+=card_deck[play_card]
+    chance+=1
+    score_show()
+    hit()
 
 def dealer_move():
     # Once the user stands his deck, the dealer hits until he hits a 17
@@ -112,6 +161,9 @@ def dealer_move():
                 card_val = 11
             else:
                 card_val = 1
+        if 'A' in dealer_deck and len(dealer_deck) > 2:
+            if dealer_score > 21:
+                dealer_score = dealer_score - 10
         dealer_score += card_val
 #    print("DEALER DECK :", " ".join(dealer_deck))
 #    print("DEALER SCORE :", dealer_score)
@@ -197,6 +249,9 @@ def hit():
             card_val = 11
         else:
             card_val = 1
+    if 'A' in player_deck and len(player_deck) > 2:
+        if player_score > 21:
+            player_score = player_score - 10
     player_score += card_val
     score_show()
     score_check()
